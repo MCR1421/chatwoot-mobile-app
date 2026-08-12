@@ -30,6 +30,7 @@ export type Notification = {
 
 export type PrimaryActor = {
   id: number;
+  displayId?: number;
   priority?: ConversationPriority | null;
   meta: {
     assignee: User;

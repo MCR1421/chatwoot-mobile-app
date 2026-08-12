@@ -21,7 +21,18 @@ import { NotificationCreatedResponse } from '@/store/notification/notificationTy
 import { NotificationRemovedResponse } from '@/store/notification/notificationTypes';
 
 export const transformConversation = (conversation: any): Conversation => {
-  return camelcaseKeys(conversation, { deep: true }) as unknown as Conversation;
+  const camelCased = camelcaseKeys(conversation, { deep: true }) as unknown as Conversation;
+  // The conversation-detail endpoint embeds messages directly (unlike the
+  // standalone messages endpoint, which already goes through
+  // transformMessage) — without this, embedded messages keep messageType as
+  // EvoCRM's string ('activity'/'incoming'/...) instead of the numeric
+  // MESSAGE_TYPES enum, misrouting them into the plain-message render path
+  // (which assumes a real sender) and crashing on activity messages, whose
+  // sender is empty.
+  if (Array.isArray(camelCased.messages)) {
+    camelCased.messages = camelCased.messages.map(transformMessage);
+  }
+  return camelCased;
 };
 
 export const transformContact = (contact: any): Contact => {

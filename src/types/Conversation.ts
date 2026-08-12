@@ -16,6 +16,10 @@ export interface Conversation {
   customAttributes: Record<string, string>;
   firstReplyCreatedAt: UnixTimestamp;
   id: number;
+  // EvoCRM: `id` is actually the conversation's real UUID at runtime (this
+  // `number` type is inherited from Chatwoot and doesn't hold here) —
+  // `displayId` is the small integer used by GET /conversations/:id.
+  displayId?: number;
   inboxId: number;
   labels: string[];
   lastActivityAt: UnixTimestamp;

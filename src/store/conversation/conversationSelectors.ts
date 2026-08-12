@@ -11,9 +11,25 @@ export const selectConversationsState = (state: RootState) => state.conversation
 
 export const {
   selectAll: selectAllConversations,
-  selectById: selectConversationById,
+  selectById: selectConversationEntityById,
   selectIds: selectConversationIds,
 } = conversationAdapter.getSelectors<RootState>(selectConversationsState);
+
+export const selectConversationById = (
+  state: RootState,
+  id: number,
+): Conversation | undefined => {
+  const byId = selectConversationEntityById(state, id);
+  if (byId) {
+    return byId;
+  }
+  // EvoCRM: conversations are normalized/keyed by their real UUID `id`, but
+  // push-notification deep links only carry the numeric `display_id`
+  // (required to hit GET /conversations/:id, which is display_id-keyed) —
+  // fall back to a displayId scan so a conversation fetched via a deep link
+  // is still found once cached, instead of looking permanently missing.
+  return selectAllConversations(state).find(conversation => conversation.displayId === id);
+};
 
 export const selectConversationsLoading = createSelector(
   selectConversationsState,

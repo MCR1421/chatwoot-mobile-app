@@ -35,7 +35,11 @@ export const findConversationLinkFromPush = ({
     const { primaryActor, primaryActorId, primaryActorType } = notification;
     let conversationId = null;
     if (primaryActorType === 'Conversation') {
-      conversationId = primaryActor.id;
+      // EvoCRM: primaryActor.id here is the conversation's real UUID, not a
+      // display_id-compatible number — the deep-link route parses this
+      // segment with parseInt(), which truncates a UUID to its leading
+      // digits (garbage). Use displayId (added server-side for this reason).
+      conversationId = primaryActor.displayId ?? primaryActor.id;
     } else if (primaryActorType === 'Message') {
       conversationId = primaryActor.conversationId;
     }

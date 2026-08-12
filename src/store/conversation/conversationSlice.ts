@@ -39,6 +39,24 @@ const initialState = conversationAdapter.getInitialState<ConversationState>({
   isChangingConversationStatus: false,
 });
 
+// EvoCRM: conversations are stored keyed by their real UUID `id`, but
+// several UI-triggered actions (mute, toggle status, mark read, translate,
+// paginate messages...) carry `conversationId` from route params / chat
+// context, which is the numeric `display_id` when the screen was opened via
+// a push-notification deep link. Same fallback as selectConversationById.
+const findConversationEntity = (
+  entities: Record<number, Conversation | undefined>,
+  conversationId: number,
+): Conversation | undefined => {
+  const byId = entities[conversationId];
+  if (byId) {
+    return byId;
+  }
+  return Object.values(entities).find(
+    conversation => conversation?.displayId === conversationId,
+  );
+};
+
 const isOutdatedConversationUpdate = (
   existingConversation: Conversation | undefined,
   incomingConversation: Conversation,
@@ -148,7 +166,7 @@ const conversationSlice = createSlice({
         return;
       }
 
-      const conversation = state.entities[conversationId];
+      const conversation = findConversationEntity(state.entities, conversationId);
 
       // If the conversation is not present in the store, we don't need to add the message
       if (!conversation) {
@@ -172,7 +190,7 @@ const conversationSlice = createSlice({
     },
     updateConversationLastActivity: (state, action) => {
       const { conversationId, lastActivityAt } = action.payload;
-      const conversation = state.entities[conversationId];
+      const conversation = findConversationEntity(state.entities, conversationId);
       if (!conversation) {
         return;
       }
@@ -231,10 +249,10 @@ const conversationSlice = createSlice({
       })
       .addCase(conversationActions.fetchPreviousMessages.fulfilled, (state, action) => {
         const { messages, conversationId, meta: responseMeta } = action.payload;
-        if (!state.entities[conversationId]) {
+        const conversation = findConversationEntity(state.entities, conversationId);
+        if (!conversation) {
           return;
         }
-        const conversation = state.entities[conversationId];
         const { afterId } = action.meta.arg;
 
         if (afterId) {
@@ -267,7 +285,7 @@ const conversationSlice = createSlice({
       })
       .addCase(conversationActions.toggleConversationStatus.fulfilled, (state, { payload }) => {
         const { conversationId, currentStatus, snoozedUntil } = payload;
-        const conversation = state.entities[conversationId];
+        const conversation = findConversationEntity(state.entities, conversationId);
         if (!conversation) {
           return;
         }
@@ -282,7 +300,7 @@ const conversationSlice = createSlice({
       })
       .addCase(conversationActions.muteConversation.fulfilled, (state, action) => {
         const { conversationId } = action.payload;
-        const conversation = state.entities[conversationId];
+        const conversation = findConversationEntity(state.entities, conversationId);
         if (!conversation) {
           return;
         }
@@ -290,7 +308,7 @@ const conversationSlice = createSlice({
       })
       .addCase(conversationActions.unmuteConversation.fulfilled, (state, action) => {
         const { conversationId } = action.payload;
-        const conversation = state.entities[conversationId];
+        const conversation = findConversationEntity(state.entities, conversationId);
         if (!conversation) {
           return;
         }
@@ -298,7 +316,7 @@ const conversationSlice = createSlice({
       })
       .addCase(conversationActions.markMessagesUnread.fulfilled, (state, action) => {
         const { conversationId, unreadCount, agentLastSeenAt } = action.payload;
-        const conversation = state.entities[conversationId];
+        const conversation = findConversationEntity(state.entities, conversationId);
         if (!conversation) {
           return;
         }
@@ -307,7 +325,7 @@ const conversationSlice = createSlice({
       })
       .addCase(conversationActions.markMessageRead.fulfilled, (state, action) => {
         const { conversationId, agentLastSeenAt, unreadCount } = action.payload;
-        const conversation = state.entities[conversationId];
+        const conversation = findConversationEntity(state.entities, conversationId);
         if (!conversation) {
           return;
         }
@@ -319,7 +337,7 @@ const conversationSlice = createSlice({
         if (!content) {
           return;
         }
-        const conversation = state.entities[conversationId];
+        const conversation = findConversationEntity(state.entities, conversationId);
         if (!conversation) {
           return;
         }
