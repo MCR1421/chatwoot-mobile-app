@@ -4,9 +4,9 @@ import type { AvailabilityStatus } from './common/AvailabilityStatus';
 export type UserRole = 'administrator' | 'agent';
 
 export type User = {
-  id: number;
+  id: number | string;
   name: string;
-  account_id: number;
+  account_id: number | string;
   accounts: Account[];
   email: string;
   pubsub_token: string;

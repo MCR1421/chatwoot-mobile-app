@@ -112,6 +112,7 @@ export const authSlice = createSlice({
           // Regular login success
           state.user = action.payload.user;
           state.headers = action.payload.headers;
+          state.accessToken = action.payload.accessToken ?? null;
           state.uiFlags.isLoggingIn = false;
           state.error = null;
           state.mfaToken = null;

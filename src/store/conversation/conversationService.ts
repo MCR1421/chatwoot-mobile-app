@@ -41,6 +41,34 @@ import {
 } from '@/utils/camelCaseKeys';
 import type { AxiosRequestConfig } from 'axios';
 
+// EvoCRM's conversation objects are flat (`contact`, `inbox` at the top
+// level); Chatwoot's mobile UI expects them nested under `meta.sender` /
+// `meta.assignee` / `meta.channel`. Add `meta` when missing so downstream
+// code (contactListener, conversation list/detail screens) doesn't crash.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const withConversationMeta = (raw: any): any => {
+  if (!raw) return raw;
+  return {
+    ...raw,
+    // EvoCRM's list/detail endpoints don't embed `messages` on the
+    // conversation object itself (Chatwoot's do); default to [] so
+    // downstream code (getLastMessage, selectors, the Redux reducer) can
+    // assume the array always exists.
+    messages: raw.messages ?? [],
+    ...(raw.meta
+      ? {}
+      : {
+          meta: {
+            sender: raw.contact ?? null,
+            assignee: raw.assignee ?? null,
+            team: raw.team ?? null,
+            hmac_verified: null,
+            channel: raw.inbox?.channel_type ?? null,
+          },
+        }),
+  };
+};
+
 export class ConversationService {
   static async getConversations(payload: ConversationPayload): Promise<ConversationListResponse> {
     const { status, assigneeType, page, sortBy, inboxId = 0 } = payload;
@@ -55,12 +83,19 @@ export class ConversationService {
     const response = await apiService.get<ConversationListAPIResponse>('conversations', {
       params,
     });
-    const {
-      data: { payload: conversations, meta },
-    } = response.data;
+    // EvoCRM returns `data` as a flat array; Chatwoot nests it under
+    // `data.payload` + `data.meta`. Normalize both shapes.
+    const responseData = response.data.data as unknown;
+    const isFlatArray = Array.isArray(responseData);
+    const conversations = isFlatArray
+      ? (responseData as typeof responseData & unknown[])
+      : (responseData as { payload: unknown[] }).payload;
+    const meta = isFlatArray
+      ? { count: (responseData as unknown[]).length }
+      : (responseData as { meta: unknown }).meta;
     const transformedResponse: ConversationListResponse = {
-      conversations: conversations.map(transformConversation),
-      meta: transformConversationListMeta(meta),
+      conversations: (conversations || []).map(withConversationMeta).map(transformConversation),
+      meta: transformConversationListMeta(meta || {}),
     };
     return transformedResponse;
   }
@@ -70,9 +105,9 @@ export class ConversationService {
       `conversations/${conversationId}`,
     );
 
-    const { data: conversation } = response;
+    const rawConversation = (response.data as unknown as { data?: unknown }).data ?? response.data;
     return {
-      conversation: transformConversation(conversation),
+      conversation: transformConversation(withConversationMeta(rawConversation)),
     };
   }
 
@@ -93,10 +128,16 @@ export class ConversationService {
         params,
       },
     );
-    const { meta, payload: messages } = response.data;
+    // EvoCRM returns `{ success, data: [...] }` (flat array, no meta); Chatwoot
+    // returns `{ meta, payload: [...] }`.
+    const rawMessages =
+      (response.data as unknown as { payload?: unknown[] }).payload ??
+      (response.data as unknown as { data?: unknown[] }).data ??
+      [];
+    const meta = (response.data as unknown as { meta?: unknown }).meta ?? {};
     return {
       meta: transformConversationMeta(meta),
-      messages: messages.map(transformMessage),
+      messages: rawMessages.map(transformMessage),
       conversationId,
     };
   }

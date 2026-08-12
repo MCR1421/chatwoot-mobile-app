@@ -379,6 +379,10 @@ export const MessageComponent = (props: MessageComponentProps) => {
       return ORIENTATION.RIGHT;
     }
     if (messageType === MESSAGE_TYPES.ACTIVITY) return ORIENTATION.CENTER;
+    // Bot replies (and any other agent's outgoing messages) sit on the
+    // vendor's side, not the customer's — only true incoming messages
+    // belong on the left.
+    if (messageType === MESSAGE_TYPES.OUTGOING) return ORIENTATION.RIGHT;
     return ORIENTATION.LEFT;
   };
 

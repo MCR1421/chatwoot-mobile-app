@@ -5,7 +5,13 @@ import { transformMacro } from '@/utils/camelCaseKeys';
 export class MacroService {
   static async index(): Promise<MacroResponse> {
     const response = await apiService.get<MacroResponse>('macros');
-    const macros = response.data.payload.map(transformMacro);
+    // EvoCRM returns `{ success, data: [...] }` (flat array); Chatwoot returns
+    // `{ payload: [...] }` directly.
+    const rawMacros =
+      (response.data as unknown as { payload?: unknown[] }).payload ??
+      (response.data as unknown as { data?: unknown[] }).data ??
+      [];
+    const macros = rawMacros.map(transformMacro);
     return {
       payload: macros,
     };

@@ -11,7 +11,8 @@ export interface LoginPayload {
 }
 export interface LoginResponse {
   user: User;
-  headers: AuthHeaders;
+  headers: AuthHeaders | null;
+  accessToken?: string;
 }
 
 export interface MfaRequiredResponse {

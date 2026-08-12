@@ -48,8 +48,9 @@ export const filterDuplicateSourceMessages = (messages: Message[] = []): Message
 };
 
 export const getLastMessage = (conversation: Conversation): Message | null => {
-  const lastMessageIncludingActivity = conversation.messages[conversation.messages.length - 1];
-  const nonActivityMessages = conversation.messages.filter(message => message.messageType !== 2);
+  const messages = conversation.messages ?? [];
+  const lastMessageIncludingActivity = messages[messages.length - 1];
+  const nonActivityMessages = messages.filter(message => message.messageType !== 2);
   const lastNonActivityMessageInStore = nonActivityMessages[nonActivityMessages.length - 1];
   const lastNonActivityMessageFromAPI = conversation.lastNonActivityMessage;
 

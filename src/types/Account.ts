@@ -5,7 +5,7 @@ export interface Account {
   availability_status: string;
   custom_role?: string;
   custom_role_id?: string;
-  id: number;
+  id: number | string;
   name: string;
   permissions: string[];
   role: string;

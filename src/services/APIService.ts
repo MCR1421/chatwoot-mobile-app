@@ -11,13 +11,7 @@ import { Platform } from 'react-native';
 import { getStore } from '@/store/storeAccessor';
 import I18n from '@/i18n';
 import { showToast } from '@/utils/toastUtils';
-
-const nonAccountRoutes = [
-  'profile',
-  'profile/availability',
-  'notification_subscriptions',
-  'profile/set_active_account',
-];
+import { EVO_CRM_URL } from '@/services/evoConfig';
 
 const CLIENT_NAME = 'Chatwoot Mobile';
 const CLIENT_VERSION = Constants.expoConfig?.version ?? 'unknown';
@@ -55,27 +49,20 @@ class APIService {
   private getHeaders() {
     const store = getStore();
     const state = store.getState();
-    const headers = state.auth.headers;
-    if (!headers) return {};
+    const token = state.auth.accessToken;
+    if (!token) return {};
 
-    return {
-      'access-token': headers['access-token'],
-      uid: headers.uid,
-      client: headers.client,
-    };
+    return { Authorization: `Bearer ${token}` };
   }
 
   private setupInterceptors() {
     this.api.interceptors.request.use(
       async (config: AxiosRequestConfig): Promise<InternalAxiosRequestConfig> => {
         const headers = this.getHeaders();
-        const store = getStore();
-        const state = store.getState();
-        config.baseURL = state.settings?.installationUrl;
-        const accountId = state.auth.user?.account_id;
-        if (accountId && config.url && !nonAccountRoutes.includes(config.url)) {
-          config.url = `api/v1/accounts/${accountId}/${config.url}`;
-        } else if (nonAccountRoutes.includes(config.url || '')) {
+        // EvoCRM: flat single-tenant routes, no /accounts/:id prefix.
+        // See config/routes.rb in evo-ai-crm-community.
+        config.baseURL = EVO_CRM_URL;
+        if (config.url) {
           config.url = `api/v1/${config.url}`;
         }
         return {

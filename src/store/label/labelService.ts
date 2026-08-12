@@ -5,7 +5,13 @@ import { transformLabel } from '@/utils/camelCaseKeys';
 export class LabelService {
   static async index(): Promise<LabelResponse> {
     const response = await apiService.get<LabelResponse>('labels');
-    const labels = response.data.payload.map(transformLabel);
+    // EvoCRM returns `{ success, data: [...] }` (flat array); Chatwoot returns
+    // `{ payload: [...] }` directly.
+    const rawLabels =
+      (response.data as unknown as { payload?: unknown[] }).payload ??
+      (response.data as unknown as { data?: unknown[] }).data ??
+      [];
+    const labels = rawLabels.map(transformLabel);
     return {
       payload: labels,
     };

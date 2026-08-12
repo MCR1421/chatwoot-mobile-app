@@ -32,8 +32,25 @@ export const transformInbox = (inbox: any): Inbox => {
   return camelcaseKeys(inbox, { deep: true }) as unknown as Inbox;
 };
 
+// EvoCRM sends `message_type` as a string ('incoming'/'outgoing'/'activity'/
+// 'template'); Chatwoot's mobile UI compares it against the numeric
+// MESSAGE_TYPES enum (0/1/2/3) everywhere (bubble color, activity
+// centering, bot detection), so an unconverted string silently falls
+// through every check to the same default styling.
+const MESSAGE_TYPE_STRING_TO_NUMBER: Record<string, number> = {
+  incoming: 0,
+  outgoing: 1,
+  activity: 2,
+  template: 3,
+};
+
 export const transformMessage = (message: any): Message => {
-  return camelcaseKeys(message, { deep: true }) as unknown as Message;
+  const camelCased = camelcaseKeys(message, { deep: true }) as any;
+  if (typeof camelCased.messageType === 'string') {
+    camelCased.messageType =
+      MESSAGE_TYPE_STRING_TO_NUMBER[camelCased.messageType] ?? camelCased.messageType;
+  }
+  return camelCased as Message;
 };
 
 export const transformConversationListMeta = (meta: any): ConversationListMeta => {

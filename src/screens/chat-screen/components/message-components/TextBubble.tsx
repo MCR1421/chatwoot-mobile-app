@@ -7,6 +7,7 @@ import { MarkdownBubble } from './MarkdownBubble';
 import { EmailMeta } from './EmailMeta';
 import i18n from '@/i18n';
 import { MESSAGE_VARIANTS } from '@/constants';
+import { looksLikeHtml, htmlToMarkdown } from '@/utils/htmlContentUtils';
 
 export type TextBubbleProps = {
   item: Message;
@@ -33,8 +34,8 @@ export const TextBubble = (props: TextBubbleProps) => {
     setShowOriginal(prev => !prev);
   }, []);
 
-  const displayContent =
-    hasTranslations && !showOriginal ? translatedText : (content || '');
+  const rawContent = hasTranslations && !showOriginal ? translatedText : (content || '');
+  const displayContent = looksLikeHtml(rawContent) ? htmlToMarkdown(rawContent) : rawContent;
 
   const toggleTextColor =
     variant === MESSAGE_VARIANTS.USER ? 'text-blue-200' : 'text-blue-700';
