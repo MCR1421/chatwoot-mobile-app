@@ -3,6 +3,7 @@ import { settingsActions } from './settingsActions';
 import * as RootNavigation from '@/utils/navigationUtils';
 import { NotificationSettings } from './settingsTypes';
 import { Theme } from '@/types/common/Theme';
+import { EVO_CRM_WS_URL } from '@/services/evoConfig';
 
 interface SettingsState {
   baseUrl: string;
@@ -37,7 +38,10 @@ const initialState: SettingsState = {
     selected_push_flags: [],
     user_id: 0,
   },
-  webSocketUrl: 'wss://app.chatwoot.com/cable',
+  // EvoCRM: the ConfigureURL screen that normally sets this from a server
+  // response is unreachable in this fork (Login is the initial route), so
+  // the default has to already point at EvoCRM's cable endpoint.
+  webSocketUrl: EVO_CRM_WS_URL,
   theme: 'system',
   version: '',
   pushToken: '',

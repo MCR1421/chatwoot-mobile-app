@@ -11,9 +11,14 @@ export interface ActionCableEvent<T = unknown> {
 
 class BaseActionCableConnector {
   protected events: { [key: string]: (data: unknown) => void };
-  protected accountId: number;
+  protected accountId: number | string;
 
-  constructor(pubSubToken: string, webSocketUrl: string, accountId: number, userId: number) {
+  constructor(
+    pubSubToken: string,
+    webSocketUrl: string,
+    accountId: number | string,
+    userId: number | string,
+  ) {
     const connectActionCable = ActionCable.createConsumer(webSocketUrl);
 
     const channel = cable.setChannel(
@@ -46,8 +51,13 @@ class BaseActionCableConnector {
   }
 
   protected isAValidEvent = (data: unknown): boolean => {
-    const { account_id } = data as { account_id: number };
-    return this.accountId === account_id;
+    const { account_id: accountId } = data as { account_id?: number | string };
+    // EvoCRM is single-tenant: broadcast payloads (message.push_event_data,
+    // conversation.push_event_data, ...) carry no account_id at all, unlike
+    // Chatwoot's multi-tenant payloads. Treat a missing account_id as "any
+    // account" instead of dropping every event.
+    if (accountId == null) return true;
+    return String(this.accountId) === String(accountId);
   };
 
   private onReceived = ({ event, data }: ActionCableEvent = { event: '', data: null }): void => {

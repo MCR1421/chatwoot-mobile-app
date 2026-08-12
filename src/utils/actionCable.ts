@@ -28,8 +28,8 @@ import {
 interface ActionCableConfig {
   pubSubToken: string;
   webSocketUrl: string;
-  accountId: number;
-  userId: number;
+  accountId: number | string;
+  userId: number | string;
 }
 
 class ActionCableConnector extends BaseActionCableConnector {
@@ -37,7 +37,12 @@ class ActionCableConnector extends BaseActionCableConnector {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected events: { [key: string]: (data: any) => void };
 
-  constructor(pubSubToken: string, webSocketUrl: string, accountId: number, userId: number) {
+  constructor(
+    pubSubToken: string,
+    webSocketUrl: string,
+    accountId: number | string,
+    userId: number | string,
+  ) {
     super(pubSubToken, webSocketUrl, accountId, userId);
     this.CancelTyping = {};
     this.events = {
