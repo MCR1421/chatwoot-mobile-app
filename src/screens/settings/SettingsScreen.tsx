@@ -99,7 +99,7 @@ const SettingsScreen = () => {
 
   const pushToken = useAppSelector(selectPushToken);
 
-  const userPermissions = getUserPermissions(user, activeAccountId);
+  const userPermissions = getUserPermissions(user);
 
   const hasConversationPermission = CONVERSATION_PERMISSIONS.some(permission =>
     userPermissions.includes(permission),

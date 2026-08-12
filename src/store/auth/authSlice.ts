@@ -140,9 +140,12 @@ export const authSlice = createSlice({
         state.uiFlags.isResettingPassword = false;
       })
       .addCase(authActions.updateAvailability.fulfilled, (state, action) => {
+        // EvoCRM's availability endpoint renders the user flat (same as
+        // `profile`/getProfile), not wrapped in `{ user: {...} }` like
+        // Chatwoot's; action.payload.user was always undefined here.
         state.user = {
           ...state.user,
-          ...action.payload.user,
+          ...(action.payload.user ?? action.payload),
         };
       })
       .addCase(authActions.verifyMfa.pending, state => {

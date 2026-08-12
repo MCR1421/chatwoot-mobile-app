@@ -138,7 +138,7 @@ const Tabs = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [installationUrl]);
 
-  const userPermissions = user ? getUserPermissions(user, user.account_id) : [];
+  const userPermissions = user ? getUserPermissions(user) : [];
 
   // Checking if user has conversation permission to show inbox and conversations tabs
   const hasConversationPermission = CONVERSATION_PERMISSIONS.some(permission =>

@@ -33,10 +33,14 @@ export const selectCurrentUserAvailability = createSelector(selectAuth, auth => 
   if (!auth.user) {
     return 'offline';
   }
+  // EvoCRM is single-tenant: `accounts` always has exactly one entry (the
+  // profile/availability endpoint's jbuilder hardcodes its `id` to 1, which
+  // never matches the real UUID `account_id` from login) — so index [0]
+  // directly instead of filtering by id.
   const {
-    user: { account_id, accounts = [] },
+    user: { accounts = [] },
   } = auth;
-  const [currentAccount] = accounts.filter(account => account.id === account_id) as Account[];
+  const [currentAccount] = accounts as Account[];
   return currentAccount?.availability ?? 'offline';
 });
 
