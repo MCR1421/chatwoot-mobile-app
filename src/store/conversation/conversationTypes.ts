@@ -57,11 +57,10 @@ export interface ToggleConversationStatusResponse {
 }
 
 export interface ToggleConversationStatusAPIResponse {
-  payload: {
-    conversation_id: number;
-    current_status: ConversationStatus;
+  success: boolean;
+  data: {
+    status: ConversationStatus;
     snoozed_until: number | null;
-    success: boolean;
   };
 }
 
@@ -237,6 +236,19 @@ export interface TypingPayload {
 }
 
 export interface TogglePriorityPayload {
+  conversationId: number;
+  priority: ConversationPriority;
+}
+
+export interface TogglePriorityAPIResponse {
+  success: boolean;
+  data: {
+    id: number;
+    priority: ConversationPriority;
+  };
+}
+
+export interface TogglePriorityResponse {
   conversationId: number;
   priority: ConversationPriority;
 }

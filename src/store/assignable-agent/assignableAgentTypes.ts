@@ -1,7 +1,8 @@
 import { Agent } from '@/types';
 
 export interface AssignableAgentAPIResponse {
-  payload: Agent[];
+  success: boolean;
+  data: Agent[];
 }
 
 export interface AssignableAgentResponse {

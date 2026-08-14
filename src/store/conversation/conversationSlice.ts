@@ -298,6 +298,14 @@ const conversationSlice = createSlice({
       .addCase(conversationActions.toggleConversationStatus.rejected, state => {
         state.isChangingConversationStatus = false;
       })
+      .addCase(conversationActions.togglePriority.fulfilled, (state, { payload }) => {
+        const { conversationId, priority } = payload;
+        const conversation = findConversationEntity(state.entities, conversationId);
+        if (!conversation) {
+          return;
+        }
+        conversation.priority = priority;
+      })
       .addCase(conversationActions.muteConversation.fulfilled, (state, action) => {
         const { conversationId } = action.payload;
         const conversation = findConversationEntity(state.entities, conversationId);

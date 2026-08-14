@@ -10,7 +10,7 @@ export class AssignableAgentService {
       },
     });
 
-    const inboxesAgents = response.data.payload.map(transformInboxAgent);
+    const inboxesAgents = response.data.data.map(transformInboxAgent);
     return {
       agents: inboxesAgents,
       inboxIds,

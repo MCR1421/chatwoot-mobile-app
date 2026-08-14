@@ -25,6 +25,7 @@ import type {
   SendMessageAPIResponse,
   SendMessagePayload,
   TogglePriorityPayload,
+  TogglePriorityResponse,
   TranslateMessagePayload,
   TranslateMessageAPIResponse,
 } from './conversationTypes';
@@ -250,7 +251,7 @@ export const conversationActions = {
       return await ConversationService.toggleTyping(payload);
     },
   ),
-  togglePriority: createAsyncThunk<void, TogglePriorityPayload>(
+  togglePriority: createAsyncThunk<TogglePriorityResponse, TogglePriorityPayload>(
     'conversations/togglePriority',
     async (payload, { rejectWithValue }) => {
       return await ConversationService.togglePriority(payload);
