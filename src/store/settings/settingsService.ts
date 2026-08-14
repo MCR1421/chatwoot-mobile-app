@@ -19,14 +19,16 @@ export class SettingsService {
 
   static async getNotificationSettings(): Promise<NotificationSettings> {
     const response = await apiService.get<NotificationSettings>('notification_settings');
-    return response.data;
+    // EvoCRM wraps this response as { success, data: {...} }, unlike the
+    // raw object this endpoint returns upstream.
+    return (response.data as unknown as { data?: NotificationSettings }).data ?? response.data;
   }
 
   static async updateNotificationSettings(
     payload: NotificationSettingsPayload,
   ): Promise<NotificationSettings> {
     const response = await apiService.put<NotificationSettings>('notification_settings', payload);
-    return response.data;
+    return (response.data as unknown as { data?: NotificationSettings }).data ?? response.data;
   }
 
   static async getChatwootVersion(installationUrl: string): Promise<{ version: string }> {
