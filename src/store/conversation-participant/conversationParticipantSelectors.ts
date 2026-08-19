@@ -12,5 +12,5 @@ export const selectConversationParticipants = createSelector(
 
 export const selectConversationParticipantsByConversationId = createSelector(
   [selectConversationParticipants, (_state: RootState, conversationId: number) => conversationId],
-  (state, conversationId) => state[conversationId],
+  (state, conversationId) => state[conversationId] ?? [],
 );
