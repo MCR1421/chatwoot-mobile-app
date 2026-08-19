@@ -43,7 +43,7 @@ const HeaderTitle = () => (
     <Text
       numberOfLines={1}
       style={tailwind.style(
-        'text-[17px] font-inter-medium-24 tracking-[0.32px] leading-[17px] text-center text-gray-950',
+        'text-[17px] font-inter-medium-24 tracking-[0.32px] leading-[17px] text-center text-gray-950 dark:text-grayDark-950',
       )}>
       {i18n.t('CONVERSATION.HEADER.TITLE')}
     </Text>
@@ -59,7 +59,12 @@ const LeftSection = ({ currentState, isSelectedAll, onLeftIconPress }: LeftSecti
       <Animated.View style={tailwind.style('flex-1 items-start')}>
         <Pressable onPress={onLeftIconPress} hitSlop={16}>
           <Animated.View exiting={exiting} entering={entering}>
-            <Icon size={24} icon={<SearchIcon stroke={tailwind.color('text-gray-800')} />} />
+            <Icon
+              size={24}
+              icon={
+                <SearchIcon stroke={tailwind.color('text-gray-800 dark:text-grayDark-800')} />
+              }
+            />
           </Animated.View>
         </Pressable>
       </Animated.View>
@@ -76,7 +81,7 @@ const LeftSection = ({ currentState, isSelectedAll, onLeftIconPress }: LeftSecti
               isSelectedAll ? (
                 <CheckedIcon />
               ) : (
-                <UncheckedIcon stroke={tailwind.color('text-gray-800')} />
+                <UncheckedIcon stroke={tailwind.color('text-gray-800 dark:text-grayDark-800')} />
               )
             }
           />

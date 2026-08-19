@@ -47,6 +47,7 @@ import {
 import { tailwind } from '@/theme';
 import { Conversation } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/hooks';
+import { selectTheme } from '@/store/settings/settingsSelectors';
 import {
   selectBottomSheetState,
   setBottomSheetState,
@@ -256,7 +257,10 @@ const ConversationList = () => {
         `pb-[${TAB_BAR_HEIGHT}px]`,
       )}>
       <EmptyStateIcon />
-      <Animated.Text style={tailwind.style('pt-6 text-md  tracking-[0.32px] text-gray-800')}>
+      <Animated.Text
+        style={tailwind.style(
+          'pt-6 text-md  tracking-[0.32px] text-gray-800 dark:text-grayDark-800',
+        )}>
         {i18n.t('CONVERSATION.EMPTY')}
       </Animated.Text>
     </Animated.ScrollView>
@@ -282,6 +286,8 @@ const ConversationList = () => {
 const ConversationScreen = () => {
   const currentBottomSheet = useAppSelector(selectBottomSheetState);
   const dispatch = useAppDispatch();
+  const theme = useAppSelector(selectTheme);
+  const isDarkMode = theme === 'dark';
 
   const animationConfigs = useBottomSheetSpringConfigs({
     mass: 1.2,
@@ -322,11 +328,13 @@ const ConversationScreen = () => {
   }, [currentBottomSheet]);
 
   return (
-    <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white')}>
+    <SafeAreaView
+      edges={['top']}
+      style={tailwind.style('flex-1 bg-white dark:bg-grayDark-50')}>
       <StatusBar
         translucent
-        backgroundColor={tailwind.color('bg-white')}
-        barStyle={'dark-content'}
+        backgroundColor={tailwind.color(isDarkMode ? 'bg-grayDark-50' : 'bg-white')}
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
       />
       <ConversationListStateProvider>
         <ConversationHeader />
