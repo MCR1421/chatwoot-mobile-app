@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { settingsActions } from './settingsActions';
 import * as RootNavigation from '@/utils/navigationUtils';
 import { NotificationSettings } from './settingsTypes';
@@ -42,7 +42,7 @@ const initialState: SettingsState = {
   // response is unreachable in this fork (Login is the initial route), so
   // the default has to already point at EvoCRM's cable endpoint.
   webSocketUrl: EVO_CRM_WS_URL,
-  theme: 'system',
+  theme: 'light',
   version: '',
   pushToken: '',
 };
@@ -57,6 +57,9 @@ export const settingsSlice = createSlice({
     setLocale: (state, action) => {
       state.localeValue = action.payload;
       state.uiFlags.isLocaleSet = true;
+    },
+    setTheme: (state, action: PayloadAction<Theme>) => {
+      state.theme = action.payload;
     },
   },
   extraReducers: builder => {
@@ -103,5 +106,5 @@ export const settingsSlice = createSlice({
       });
   },
 });
-export const { resetSettings, setLocale } = settingsSlice.actions;
+export const { resetSettings, setLocale, setTheme } = settingsSlice.actions;
 export default settingsSlice.reducer;
