@@ -72,7 +72,7 @@ export const UpdatePriority = () => {
     await dispatch(
       conversationActions.togglePriority({
         conversationId: selectedConversation?.id,
-        priority,
+        priority: priority === 'none' ? null : priority,
       }),
     );
     AnalyticsHelper.track(CONVERSATION_EVENTS.PRIORITY_CHANGED);
