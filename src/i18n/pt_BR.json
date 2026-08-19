@@ -348,6 +348,8 @@
     "PHONE_NUMBER": "Número de Telefone",
     "PHONE": "Telefone",
     "CALL": "Chamada",
+    "WHATSAPP": "WhatsApp",
+    "WHATSAPP_NOT_INSTALLED": "WhatsApp Business não está instalado",
     "LOCATION": "Localização",
     "COMPANY": "Empresa",
     "CONTACT_ATTRIBUTES": "Atributos do contato",

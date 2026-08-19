@@ -376,6 +376,8 @@
     "PHONE_NUMBER": "Phone Number",
     "PHONE": "Phone",
     "CALL": "Call",
+    "WHATSAPP": "WhatsApp",
+    "WHATSAPP_NOT_INSTALLED": "WhatsApp Business is not installed",
     "LOCATION": "Location",
     "COMPANY": "Company",
     "CONTACT_ATTRIBUTES": "Contact Attributes",

@@ -4,14 +4,16 @@ import Animated from 'react-native-reanimated';
 
 import { Icon, IconButton } from '@/components-next';
 
-import { MailIcon, PhoneIcon } from '@/svg-icons';
+import { MailIcon, PhoneIcon, WhatsAppIcon } from '@/svg-icons';
 import { tailwind } from '@/theme';
 import { useHaptic, useScaleAnimation } from '@/utils';
 import i18n from '@/i18n';
 import { openNumber, openEmail } from '@/utils/urlUtils';
+import { openWhatsAppBusinessChat } from '@/utils/whatsappLauncher';
+import { showToast } from '@/utils/toastUtils';
 
 type ContactOption = {
-  contactType: 'call' | 'email';
+  contactType: string;
   icon: React.ReactNode;
 };
 
@@ -21,10 +23,10 @@ type ContactOptionProps = {
 };
 
 const SCREEN_WIDTH = Dimensions.get('screen').width;
-const OPTION_WIDTH = (SCREEN_WIDTH - 32 - 12 * 3) / 2;
+const optionWidth = (count: number) => (SCREEN_WIDTH - 32 - 12 * (count - 1)) / count;
 
-const ContactOptionComponent = (props: ContactOptionProps) => {
-  const { option, handleOptionPress } = props;
+const ContactOptionComponent = (props: ContactOptionProps & { width: number }) => {
+  const { option, handleOptionPress, width } = props;
 
   const { handlers, animatedStyle } = useScaleAnimation();
   const hapticSelection = useHaptic();
@@ -40,7 +42,7 @@ const ContactOptionComponent = (props: ContactOptionProps) => {
         style={({ pressed }) => [
           tailwind.style(
             'flex items-center justify-center flex-1 rounded-xl bg-gray-50 py-3',
-            `w-[${OPTION_WIDTH}px]`,
+            `w-[${width}px]`,
             pressed ? 'bg-gray-100' : '',
           ),
         ]}
@@ -75,50 +77,70 @@ export const ContactBasicActions = (props: ContactBasicActionsProps) => {
     openEmail({ email });
   };
 
+  const onWhatsAppPress = async () => {
+    if (!phoneNumber) {
+      return;
+    }
+    try {
+      await openWhatsAppBusinessChat(phoneNumber);
+    } catch {
+      showToast({ message: i18n.t('CONTACT_DETAILS.WHATSAPP_NOT_INSTALLED') });
+    }
+  };
+
   if (!email && !phoneNumber) {
     return null;
   }
 
-  if (email && phoneNumber) {
-    return (
-      <Animated.View style={tailwind.style('flex flex-row justify-between ')}>
-        <ContactOptionComponent
-          key="email"
-          option={{
-            contactType: i18n.t('CONTACT_DETAILS.EMAIL'),
-            icon: <MailIcon strokeWidth={2} stroke={tailwind.color('bg-blue-800')} />,
-          }}
-          handleOptionPress={onEmailPress}
-        />
-        <ContactOptionComponent
-          key="phoneNumber"
-          option={{
-            contactType: i18n.t('CONTACT_DETAILS.CALL'),
-            icon: <PhoneIcon strokeWidth={2} stroke={tailwind.color('bg-blue-800')} />,
-          }}
-          handleOptionPress={onCallPress}
-        />
-      </Animated.View>
-    );
+  const options: { key: string; option: ContactOption; onPress: () => void }[] = [];
+
+  if (email) {
+    options.push({
+      key: 'email',
+      option: {
+        contactType: i18n.t('CONTACT_DETAILS.EMAIL'),
+        icon: <MailIcon strokeWidth={2} stroke={tailwind.color('bg-blue-800')} />,
+      },
+      onPress: onEmailPress,
+    });
   }
 
   if (phoneNumber) {
+    options.push({
+      key: 'phoneNumber',
+      option: {
+        contactType: i18n.t('CONTACT_DETAILS.CALL'),
+        icon: <PhoneIcon strokeWidth={2} stroke={tailwind.color('bg-blue-800')} />,
+      },
+      onPress: onCallPress,
+    });
+    options.push({
+      key: 'whatsapp',
+      option: {
+        contactType: i18n.t('CONTACT_DETAILS.WHATSAPP'),
+        icon: <WhatsAppIcon />,
+      },
+      onPress: onWhatsAppPress,
+    });
+  }
+
+  if (options.length === 1) {
     return (
       <IconButton
-        text={i18n.t('CONTACT_DETAILS.CALL')}
+        text={options[0].option.contactType}
         variant="secondary"
-        handlePress={onCallPress}
+        handlePress={options[0].onPress}
       />
     );
   }
 
-  if (email) {
-    return (
-      <IconButton
-        text={i18n.t('CONTACT_DETAILS.EMAIL')}
-        variant="secondary"
-        handlePress={onEmailPress}
-      />
-    );
-  }
+  const width = optionWidth(options.length);
+
+  return (
+    <Animated.View style={tailwind.style('flex flex-row justify-between')}>
+      {options.map(({ key, option, onPress }) => (
+        <ContactOptionComponent key={key} option={option} handleOptionPress={onPress} width={width} />
+      ))}
+    </Animated.View>
+  );
 };
