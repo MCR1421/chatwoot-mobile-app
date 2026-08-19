@@ -274,7 +274,8 @@
     "LOGOUT": "Sair",
     "SUBMIT": "Enviar",
     "SET_LANGUAGE": "Configurar Idioma",
-    "DEBUG_ACTIONS": "Ações de Depuração"
+    "DEBUG_ACTIONS": "Ações de Depuração",
+    "DARK_MODE": "Tema escuro"
   },
   "NOTIFICATION": {
     "HEADER_TITLE": "Notificações",

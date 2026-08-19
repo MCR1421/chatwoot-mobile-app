@@ -302,7 +302,8 @@
     "LOGOUT": "Logout",
     "SUBMIT": "Submit",
     "SET_LANGUAGE": "Set Language",
-    "DEBUG_ACTIONS": "Debug Actions"
+    "DEBUG_ACTIONS": "Debug Actions",
+    "DARK_MODE": "Dark mode"
   },
   "NOTIFICATION": {
     "HEADER_TITLE": "Notifications",

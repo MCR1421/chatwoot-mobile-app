@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StatusBar, Text, Platform, Pressable } from 'react-native';
+import { StatusBar, Text, Platform, Pressable, Switch } from 'react-native';
 import Animated from 'react-native-reanimated';
 // import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -59,9 +59,10 @@ import {
   selectLocale,
   selectIsChatwootCloud,
   selectPushToken,
+  selectTheme,
 } from '@/store/settings/settingsSelectors';
 import { settingsActions } from '@/store/settings/settingsActions';
-import { setLocale } from '@/store/settings/settingsSlice';
+import { setLocale, setTheme } from '@/store/settings/settingsSlice';
 
 import AnalyticsHelper from '@/utils/analyticsUtils';
 import { PROFILE_EVENTS } from '@/constants/analyticsEvents';
@@ -135,6 +136,8 @@ const SettingsScreen = () => {
   const enableAccountSwitch = accounts.length > 1;
 
   const activeLocale = useSelector(selectLocale);
+  const theme = useAppSelector(selectTheme);
+  const isDarkMode = theme === 'dark';
   const {
     userAvailabilityStatusSheetRef,
     languagesModalSheetRef,
@@ -169,6 +172,10 @@ const SettingsScreen = () => {
 
   const onChangeLanguage = (locale: string) => {
     dispatch(setLocale(locale));
+  };
+
+  const onToggleDarkMode = (value: boolean) => {
+    dispatch(setTheme(value ? 'dark' : 'light'));
   };
 
   const changeAccount = (accountId: number) => {
@@ -275,11 +282,12 @@ const SettingsScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={tailwind.style('flex-1 bg-white font-inter-normal-20')}>
+    <SafeAreaView
+      style={tailwind.style('flex-1 bg-white dark:bg-grayDark-50 font-inter-normal-20')}>
       <StatusBar
         translucent
-        backgroundColor={tailwind.color('bg-white')}
-        barStyle={'dark-content'}
+        backgroundColor={tailwind.color(isDarkMode ? 'bg-grayDark-50' : 'bg-white')}
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
       />
       <SettingsHeader />
       <Animated.ScrollView
@@ -294,12 +302,15 @@ const SettingsScreen = () => {
               )}></Animated.View>
           </Animated.View>
           <Animated.View style={tailwind.style('flex flex-col items-center gap-1')}>
-            <Animated.Text style={tailwind.style('text-[22px] font-inter-580-24 text-gray-950')}>
+            <Animated.Text
+              style={tailwind.style(
+                'text-[22px] font-inter-580-24 text-gray-950 dark:text-grayDark-950',
+              )}>
               {name}
             </Animated.Text>
             <Animated.Text
               style={tailwind.style(
-                'text-[15px] font-inter-420-20 leading-[17.25px] text-gray-900',
+                'text-[15px] font-inter-420-20 leading-[17.25px] text-gray-900 dark:text-grayDark-900',
               )}>
               {email}
             </Animated.Text>
@@ -310,6 +321,18 @@ const SettingsScreen = () => {
         </Animated.View>
         <Animated.View style={tailwind.style('pt-6')}>
           <SettingsList sectionTitle={i18n.t('SETTINGS.SUPPORT')} list={supportList} />
+        </Animated.View>
+        <Animated.View
+          style={tailwind.style(
+            'flex flex-row justify-between items-center px-4 pt-6',
+          )}>
+          <Text
+            style={tailwind.style(
+              'text-base font-inter-420-20 text-gray-950 dark:text-grayDark-950',
+            )}>
+            {i18n.t('SETTINGS.DARK_MODE')}
+          </Text>
+          <Switch value={isDarkMode} onValueChange={onToggleDarkMode} />
         </Animated.View>
         <Animated.View style={tailwind.style('pt-6 mx-4')}>
           <Button
