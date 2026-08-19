@@ -286,7 +286,10 @@ export const MessagesListContainer = () => {
   // (prevents list from rendering at wrong position)
   if (messageId && messagesWithGrouping.length === 0 && isLoadingMessages) {
     return (
-      <View style={tailwind.style('flex-1 bg-white justify-center items-center')}>
+      <View
+        style={tailwind.style(
+          'flex-1 bg-white dark:bg-grayDark-50 justify-center items-center',
+        )}>
         <ActivityIndicator />
       </View>
     );
@@ -294,7 +297,7 @@ export const MessagesListContainer = () => {
 
   return (
     <PlatformSpecificKeyboardWrapperComponent
-      style={tailwind.style('flex-1 bg-white')}
+      style={tailwind.style('flex-1 bg-white dark:bg-grayDark-50')}
       interpolator="linear">
       <View style={[tailwind.style('flex-1'), !isListVisible && messageId ? { opacity: 0 } : {}]}>
         <MessagesList
@@ -318,7 +321,9 @@ export const MessagesListContainer = () => {
       {!isListVisible && messageId && (
         <View
           pointerEvents="none"
-          style={tailwind.style('flex-1 bg-white justify-center items-center absolute inset-0')}>
+          style={tailwind.style(
+            'flex-1 bg-white dark:bg-grayDark-50 justify-center items-center absolute inset-0',
+          )}>
           <ActivityIndicator />
         </View>
       )}
