@@ -57,7 +57,9 @@ export const selectSelectedConversation = (state: RootState) =>
   state.selectedConversation.selectedConversation;
 
 export const selectSelectedIds = createSelector([selectSelected], selected =>
-  Object.keys(selected).map(Number),
+  // Conversation.id is a UUID string at runtime on this fork (see Conversation.ts) —
+  // Number(uuid) is NaN, which silently broke every bulk action (assign/status/labels).
+  Object.keys(selected),
 );
 
 export const selectSelectedConversations = createSelector([selectSelected], selected =>

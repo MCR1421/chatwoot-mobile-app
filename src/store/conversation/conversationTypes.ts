@@ -147,7 +147,7 @@ export interface SendMessageAPIResponse {
 
 export interface BulkActionPayload {
   type: string;
-  ids: number[];
+  ids: string[];
   fields?: BulkActionFields;
   labels?: BulkActionLabels;
 }

@@ -101,9 +101,25 @@ describe('conversationSelected reducer', () => {
       expect(selected).toEqual(mockConversation);
     });
 
-    it('selectSelectedIds should return array of selected conversation ids', () => {
+    it('selectSelectedIds should return array of selected conversation ids as strings', () => {
       const ids = selectSelectedIds(mockState);
-      expect(ids).toEqual([mockConversation.id, mockConversation2.id]);
+      expect(ids).toEqual([String(mockConversation.id), String(mockConversation2.id)]);
+    });
+
+    it('selectSelectedIds should not mangle UUID conversation ids into NaN', () => {
+      const uuidState = {
+        selectedConversation: {
+          selectedConversations: {
+            'a27ffcaa-4cea-4bd5-9f9f-000000000000': {
+              ...mockConversation,
+              id: 'a27ffcaa-4cea-4bd5-9f9f-000000000000' as unknown as number,
+            },
+          },
+          selectedConversation: null,
+        },
+      } as unknown as RootState;
+      const ids = selectSelectedIds(uuidState);
+      expect(ids).toEqual(['a27ffcaa-4cea-4bd5-9f9f-000000000000']);
     });
 
     it('selectSelectedConversations should return array of selected conversations', () => {
