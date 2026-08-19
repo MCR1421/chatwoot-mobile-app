@@ -4,7 +4,6 @@ import {
   Platform,
   Pressable,
   TextInputFocusEventData,
-  StyleSheet,
   ScrollView,
 } from 'react-native';
 import Animated, {
@@ -19,6 +18,7 @@ import { useChatWindowContext } from '@/context';
 import { tailwind } from '@/theme';
 import { Icon } from '@/components-next/common';
 import { useAppDispatch, useAppSelector } from '@/hooks';
+import { selectTheme } from '@/store/settings/settingsSelectors';
 
 import { MentionInput, MentionSuggestionsProps, Suggestion } from './mentions-input';
 import {
@@ -85,6 +85,8 @@ export const MessageTextInput = ({
 }: MessageTextInputProps) => {
   const dispatch = useAppDispatch();
   const messageContent = useAppSelector(selectMessageContent);
+  const theme = useAppSelector(selectTheme);
+  const isDarkMode = theme === 'dark';
 
   const lockIconAnimatedPosition = useAnimatedStyle(() => {
     return {
@@ -119,6 +121,29 @@ export const MessageTextInput = ({
         TYPING_INDICATOR_IDLE_TIME,
       ),
     [dispatchTypingStatus],
+  );
+
+  // StyleSheet.create can't react to theme changes (it's evaluated once at
+  // module load), and this Android elevation shadow needs an opaque
+  // backgroundColor to render at all — so it's computed per-render instead
+  // of as a static module-level constant (mirrors the same fix in
+  // components-next/list-components/SettingsList.tsx).
+  const mentionListShadowStyle = useMemo(
+    () =>
+      Platform.select({
+        ios: {
+          shadowColor: '#00000040',
+          shadowOffset: { width: 0, height: 0.15 },
+          shadowRadius: 2,
+          shadowOpacity: 0.35,
+          elevation: 2,
+        },
+        android: {
+          elevation: 4,
+          backgroundColor: isDarkMode ? tailwind.color('bg-grayDark-50') : 'white',
+        },
+      }) || {},
+    [isDarkMode],
   );
 
   const startTyping = useCallback(() => {
@@ -191,10 +216,10 @@ export const MessageTextInput = ({
         <Animated.View
           style={[
             tailwind.style(
-              'bg-white border-t border-gray-200 rounded-[13px] mx-4 px-2 w-full max-h-[250px]',
+              'bg-white dark:bg-grayDark-50 border-t border-gray-200 dark:border-grayDark-200 rounded-[13px] mx-4 px-2 w-full max-h-[250px]',
               Platform.OS === 'ios' ? 'absolute bottom-full' : 'relative h-[150px]',
             ),
-            styles.listShadow,
+            mentionListShadowStyle,
           ]}>
           <ScrollView keyboardShouldPersistTaps="always">
             {filteredSuggestions.map(agent => {
@@ -232,7 +257,9 @@ export const MessageTextInput = ({
             {
               trigger: '@',
               renderSuggestions: renderMentionSuggestions,
-              textStyle: tailwind.style('text-amber-950 font-inter-medium-24'),
+              textStyle: tailwind.style(
+                'text-amber-950 dark:text-amberDark-950 font-inter-medium-24',
+              ),
               allowedSpacesCount: 0,
               isInsertSpaceAfterMention: true,
             },
@@ -243,13 +270,15 @@ export const MessageTextInput = ({
           style={[
             tailwind.style(
               'text-base font-inter-normal-20 tracking-[0.24px] leading-[20px] android:leading-[18px]',
-              'ml-[5px] mr-2 py-2 pl-3 pr-[36px] rounded-2xl text-gray-950',
+              'ml-[5px] mr-2 py-2 pl-3 pr-[36px] rounded-2xl text-gray-950 dark:text-grayDark-950',
               'min-h-9 max-h-[76px]',
-              isPrivateMessage ? 'bg-amber-100' : 'bg-blackA-A4',
+              isPrivateMessage
+                ? 'bg-amber-100 dark:bg-amberDark-100'
+                : 'bg-blackA-A4 dark:bg-grayDark-200',
             ),
             // TODO: Try settings includeFontPadding to false and have a single lineHeight value of 20
           ]}
-          placeholderTextColor={tailwind.color('bg-gray-800')}
+          placeholderTextColor={tailwind.color('bg-gray-800 dark:bg-grayDark-800')}
           maxLength={maxLength}
           placeholder={
             isPrivateMessage
@@ -282,20 +311,3 @@ export const MessageTextInput = ({
     </LayoutAnimationConfig>
   );
 };
-
-const styles = StyleSheet.create({
-  listShadow:
-    Platform.select({
-      ios: {
-        shadowColor: '#00000040',
-        shadowOffset: { width: 0, height: 0.15 },
-        shadowRadius: 2,
-        shadowOpacity: 0.35,
-        elevation: 2,
-      },
-      android: {
-        elevation: 4,
-        backgroundColor: 'white',
-      },
-    }) || {}, // Add fallback empty object
-});
