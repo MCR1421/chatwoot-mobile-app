@@ -14,13 +14,22 @@ type TailwindFnWithColorScheme = TailwindFn & {
 };
 
 export const useThemeSync = () => {
-  useDeviceContext(tailwind, {
-    observeDeviceColorSchemeChanges: false,
-    initialColorScheme: 'light',
-  });
-
   const theme = useAppSelector(selectTheme);
   const colorScheme = theme === 'dark' ? 'dark' : 'light';
+
+  // `initialColorScheme` must reflect the already-rehydrated Redux value
+  // (this hook only ever mounts inside <PersistGate>, so `theme` is correct
+  // by the time this runs), not a hardcoded default. useDeviceContext sets
+  // it synchronously during this component's FIRST render, before any
+  // effect runs — a screen that mounts eagerly in that same first render
+  // (e.g. a tab navigator's initialRouteName) would otherwise read twrnc's
+  // still-default colorScheme and never get nudged to re-render once the
+  // effect below corrects it, since the Redux value itself never changes
+  // again after that first render.
+  useDeviceContext(tailwind, {
+    observeDeviceColorSchemeChanges: false,
+    initialColorScheme: colorScheme,
+  });
 
   useEffect(() => {
     (tailwind as TailwindFnWithColorScheme).setColorScheme(colorScheme);
