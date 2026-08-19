@@ -5,6 +5,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './store';
 import { AppNavigator } from '@/navigation';
 import { AppErrorBoundary } from '@/components-next/error-boundary';
+import { ThemeSyncGate } from '@/theme/ThemeSyncGate';
 
 import i18n from '@/i18n';
 
@@ -36,9 +37,11 @@ const Chatwoot = () => {
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
-        <AppErrorBoundary>
-          <AppNavigator />
-        </AppErrorBoundary>
+        <ThemeSyncGate>
+          <AppErrorBoundary>
+            <AppNavigator />
+          </AppErrorBoundary>
+        </ThemeSyncGate>
       </PersistGate>
     </Provider>
   );
