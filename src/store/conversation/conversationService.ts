@@ -202,10 +202,13 @@ export class ConversationService {
     payload: MarkMessagesUnreadPayload,
   ): Promise<MarkMessageReadOrUnreadResponse> {
     const { conversationId } = payload;
-    const response = await apiService.post<MarkMessagesUnreadAPIResponse>(
+    const response = await apiService.post<{ data: MarkMessagesUnreadAPIResponse }>(
       `conversations/${conversationId}/unread`,
     );
-    const { id, unread_count: unreadCount, agent_last_seen_at: agentLastSeenAt } = response.data;
+    // EvoCRM wraps this response in `{success, data: {...}}`, unlike
+    // Chatwoot's flat shape the types here were originally written for.
+    const { id, unread_count: unreadCount, agent_last_seen_at: agentLastSeenAt } =
+      response.data.data;
     return {
       conversationId: id,
       unreadCount,
@@ -217,10 +220,12 @@ export class ConversationService {
     payload: MarkMessageReadPayload,
   ): Promise<MarkMessageReadOrUnreadResponse> {
     const { conversationId } = payload;
-    const response = await apiService.post<MarkMessageReadAPIResponse>(
+    const response = await apiService.post<{ data: MarkMessageReadAPIResponse }>(
       `conversations/${conversationId}/update_last_seen`,
     );
-    const { id, unread_count: unreadCount, agent_last_seen_at: agentLastSeenAt } = response.data;
+    // Same EvoCRM `{success, data: {...}}` wrapping as markMessagesUnread above.
+    const { id, unread_count: unreadCount, agent_last_seen_at: agentLastSeenAt } =
+      response.data.data;
     return {
       conversationId: id,
       unreadCount,

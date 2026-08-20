@@ -22,12 +22,20 @@ export const shouldApplyFilters = (conversation: Conversation, filters: FilterSt
   return shouldFilter;
 };
 
+// createdAt arrives as a Unix-seconds number for messages sourced from the
+// store (ActionCable's push_event_data) but as an ISO8601 string for
+// messageFromAPI (conversation list serializer) — normalize before comparing.
+const toEpochMs = (createdAt: number | string): number =>
+  typeof createdAt === 'number' ? createdAt * 1000 : new Date(createdAt).getTime();
+
 const getLastNonActivityMessage = (
   messageInStore: Message | null,
   messageFromAPI: Message | null,
 ): Message | null => {
   if (messageInStore && messageFromAPI) {
-    return messageInStore.createdAt >= messageFromAPI.createdAt ? messageInStore : messageFromAPI;
+    return toEpochMs(messageInStore.createdAt) >= toEpochMs(messageFromAPI.createdAt)
+      ? messageInStore
+      : messageFromAPI;
   }
   return messageInStore || messageFromAPI;
 };

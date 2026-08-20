@@ -92,7 +92,6 @@ const Tabs = () => {
     dispatch(authActions.getProfile());
     dispatch(settingsActions.saveDeviceDetails());
     dispatch(inboxActions.fetchInboxes());
-    initActionCable();
     dispatch(labelActions.fetchLabels());
     dispatch(setCurrentState('none'));
     dispatch(clearSelection());
@@ -132,6 +131,18 @@ const Tabs = () => {
       actionCableConnector.init({ pubSubToken, webSocketUrl, accountId, userId });
     }
   }, [accountId, pubSubToken, userId, webSocketUrl]);
+
+  // NOTE: pubSubToken/accountId/userId only land in Redux once getProfile()
+  // (dispatched above) resolves. Calling initActionCable() once inside the
+  // mount-only effect above raced that response — if the profile hadn't
+  // loaded yet at mount (slower network, fresh login), the guard inside
+  // initActionCable silently no-opped and nothing ever retried, so the
+  // socket never connected for the rest of the session. Keying this effect
+  // on initActionCable's own deps makes it retry every time one of them
+  // actually becomes available.
+  useEffect(() => {
+    initActionCable();
+  }, [initActionCable]);
 
   useEffect(() => {
     dispatch(settingsActions.getChatwootVersion({ installationUrl: installationUrl }));

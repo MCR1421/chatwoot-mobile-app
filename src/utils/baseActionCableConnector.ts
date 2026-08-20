@@ -41,6 +41,7 @@ class BaseActionCableConnector {
     channel.on('received', this.onReceived);
     channel.on('connected', this.handleConnected);
     channel.on('disconnect', this.handleDisconnected);
+    channel.on('rejected', this.handleRejected);
 
     this.events = {};
     this.accountId = accountId;
@@ -74,6 +75,10 @@ class BaseActionCableConnector {
 
   private handleDisconnected = (): void => {
     console.log('Disconnected from ActionCable');
+  };
+
+  private handleRejected = (): void => {
+    console.log('ActionCable subscription rejected');
   };
 }
 

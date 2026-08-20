@@ -3,6 +3,7 @@ import { configureStore, ThunkAction, Action, Middleware, AnyAction } from '@red
 import {
   persistStore,
   persistReducer,
+  createTransform,
   FLUSH,
   REHYDRATE,
   PAUSE,
@@ -13,6 +14,7 @@ import {
 import { appReducer } from '@/store/reducers';
 import { setStore } from './storeAccessor';
 import { contactListenerMiddleware } from './contact/contactListener';
+import { EVO_CRM_WS_URL } from '@/services/evoConfig';
 
 // Disable this in testing environment
 const shouldLoadDebugger = __DEV__ && !process.env.JEST_WORKER_ID;
@@ -21,10 +23,27 @@ const reactotronInstance = shouldLoadDebugger ? require('../../ReactotronConfig'
 
 const CURRENT_VERSION = 2;
 
+// EvoCRM: never trust a persisted/restored settings.webSocketUrl. This field
+// used to default to Chatwoot cloud before EVO_CRM_WS_URL existed, and a
+// stale value here silently connects ActionCable to the wrong server forever
+// (survives logout, and even survives uninstall+reinstall on devices that
+// restore app data) since nothing else ever overwrites it after rehydration.
+// redux-persist's default reconciler (autoMergeLevel1) replaces state.settings
+// wholesale with the rehydrated object, so merely omitting the key here left
+// webSocketUrl undefined instead of falling back to initialState — must set
+// it explicitly instead.
+const forceCurrentWebSocketUrl = createTransform(
+  inboundState => inboundState,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (outboundState: any) => ({ ...outboundState, webSocketUrl: EVO_CRM_WS_URL }),
+  { whitelist: ['settings'] },
+);
+
 const persistConfig = {
   key: 'Root',
   version: CURRENT_VERSION,
   storage: AsyncStorage,
+  transforms: [forceCurrentWebSocketUrl],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   migrate: async (state: any) => {
     // If the stored version is older or doesn't exist, return initial state
