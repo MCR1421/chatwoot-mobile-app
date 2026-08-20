@@ -24,6 +24,7 @@ import { useHaptic, useScaleAnimation, useTabBarHeight } from '@/utils';
 
 import { TabParamList } from './AppTabs';
 import { useAppSelector } from '@/hooks';
+import { selectTheme } from '@/store/settings/settingsSelectors';
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
@@ -115,6 +116,8 @@ const TabItem = (props: any) => {
 export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const hapticSelection = useHaptic();
   const tabBarHeight = useTabBarHeight();
+  const theme = useAppSelector(selectTheme);
+  const isDarkMode = theme === 'dark';
 
   // Memoize press handlers using useCallback
   const createPressHandler = React.useCallback(
@@ -161,7 +164,8 @@ export const BottomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
         ],
         android: [
           tailwind.style(
-            'flex flex-row absolute w-full bottom-0 pl-[72px] pr-[71px] py-[11px] bg-white',
+            'flex flex-row absolute w-full bottom-0 pl-[72px] pr-[71px] py-[11px]',
+            isDarkMode ? 'bg-grayDark-200' : 'bg-white',
             `h-[${tabBarHeight}px]`,
           ),
         ],
