@@ -30,6 +30,7 @@ import { showToast } from '@/utils/toastUtils';
 import { findFileSize } from '@/utils/fileUtils';
 import { selectConversationById } from '@/store/conversation/conversationSelectors';
 import { selectInboxById } from '@/store/inbox/inboxSelectors';
+import { selectTheme } from '@/store/settings/settingsSelectors';
 
 export const handleOpenPhotosLibrary = async dispatch => {
   const pickedAssets = await launchImageLibrary({
@@ -160,25 +161,25 @@ const handleAttachFile = async dispatch => {
 const ADD_MENU_OPTIONS = [
   {
     id: 'photos',
-    icon: <PhotosIcon />,
+    IconComponent: PhotosIcon,
     titleKey: 'CONVERSATION_ATTACHMENT.OPTIONS.PHOTOS',
     handlePress: handleOpenPhotosLibrary,
   },
   {
     id: 'camera',
-    icon: <CameraIcon />,
+    IconComponent: CameraIcon,
     titleKey: 'CONVERSATION_ATTACHMENT.OPTIONS.CAMERA',
     handlePress: handleLaunchCamera,
   },
   {
     id: 'attach_file',
-    icon: <AttachFileIcon />,
+    IconComponent: AttachFileIcon,
     titleKey: 'CONVERSATION_ATTACHMENT.OPTIONS.ATTACH_FILE',
     handlePress: handleAttachFile,
   },
   {
     id: 'macros',
-    icon: <MacrosIcon />,
+    IconComponent: MacrosIcon,
     titleKey: 'CONVERSATION_ATTACHMENT.OPTIONS.MACROS',
     handlePress: () => {},
   },
@@ -186,7 +187,7 @@ const ADD_MENU_OPTIONS = [
 
 const TEMPLATES_MENU_OPTION = {
   id: 'whatsapp_templates',
-  icon: <WhatsAppMonochromeIcon />,
+  IconComponent: WhatsAppMonochromeIcon,
   titleKey: 'CONVERSATION_ATTACHMENT.OPTIONS.WHATSAPP_TEMPLATES',
   handlePress: () => {},
 };
@@ -209,6 +210,8 @@ const MenuOption = (props: MenuOptionProps) => {
   const { index, menuOption } = props;
   const dispatch = useAppDispatch();
   const { macrosListSheetRef, whatsAppTemplatesSheetRef } = useRefsContext();
+  const theme = useAppSelector(selectTheme);
+  const isDarkMode = theme === 'dark';
 
   const { animatedStyle, handlers } = useScaleAnimation();
   const hapticSelection = useHaptic();
@@ -229,11 +232,14 @@ const MenuOption = (props: MenuOptionProps) => {
       <Pressable onPress={handlePress} {...handlers}>
         <Animated.View key={index} style={[tailwind.style('flex-row items-center justify-start')]}>
           <Animated.View style={tailwind.style('p-2')}>
-            <Icon icon={menuOption.icon} size={24} />
+            <Icon
+              icon={<menuOption.IconComponent stroke={isDarkMode ? '#E9EDEF' : undefined} />}
+              size={24}
+            />
           </Animated.View>
           <Text
             style={tailwind.style(
-              'text-base font-inter-normal-20 leading-[18px] tracking-[0.24px] text-gray-950 pl-5',
+              'text-base font-inter-normal-20 leading-[18px] tracking-[0.24px] text-gray-950 dark:text-grayDark-950 pl-5',
             )}>
             {i18n.t(menuOption.titleKey)}
           </Text>
