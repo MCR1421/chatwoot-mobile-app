@@ -63,6 +63,7 @@ import {
 } from '@/store/settings/settingsSelectors';
 import { settingsActions } from '@/store/settings/settingsActions';
 import { setLocale, setTheme } from '@/store/settings/settingsSlice';
+import { setTailwindColorScheme } from '@/theme/useThemeSync';
 
 import AnalyticsHelper from '@/utils/analyticsUtils';
 import { PROFILE_EVENTS } from '@/constants/analyticsEvents';
@@ -175,6 +176,13 @@ const SettingsScreen = () => {
   };
 
   const onToggleDarkMode = (value: boolean) => {
+    // Flip twrnc's own color scheme synchronously, before dispatch, so every
+    // component that re-renders as part of this same toggle (including ones
+    // that only use static `dark:` classes, not their own theme selector)
+    // resolves against the new scheme instead of a stale one — see
+    // setTailwindColorScheme's comment for why the effect-only version of
+    // this raced.
+    setTailwindColorScheme(value ? 'dark' : 'light');
     dispatch(setTheme(value ? 'dark' : 'light'));
   };
 

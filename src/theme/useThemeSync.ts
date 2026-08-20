@@ -14,6 +14,17 @@ type TailwindFnWithColorScheme = TailwindFn & {
   getColorScheme: () => string | null | undefined;
 };
 
+// Mutates twrnc's internal color scheme synchronously. Components that use
+// static `dark:` prefixed classes (rather than reading `theme` from Redux
+// themselves) only pick up the new scheme if it's already been flipped by
+// the time THEY render — a `useEffect` runs after commit, too late for any
+// re-render triggered in the same tick as the toggle, which is why calling
+// this from `onToggleDarkMode` (synchronously, before dispatch) matters as
+// much as the effect below that handles first-mount/rehydration.
+export const setTailwindColorScheme = (colorScheme: 'light' | 'dark') => {
+  (tailwind as TailwindFnWithColorScheme).setColorScheme(colorScheme);
+};
+
 export const useThemeSync = () => {
   const theme = useAppSelector(selectTheme);
   const colorScheme = theme === 'dark' ? 'dark' : 'light';
@@ -33,7 +44,7 @@ export const useThemeSync = () => {
   });
 
   useEffect(() => {
-    (tailwind as TailwindFnWithColorScheme).setColorScheme(colorScheme);
+    setTailwindColorScheme(colorScheme);
   }, [colorScheme]);
 
   return colorScheme;
