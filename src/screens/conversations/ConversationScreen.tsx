@@ -330,10 +330,10 @@ const ConversationScreen = () => {
   return (
     <SafeAreaView
       edges={['top']}
-      style={tailwind.style('flex-1 bg-white dark:bg-grayDark-50')}>
+      style={tailwind.style('flex-1 bg-white dark:bg-[#0b141a]')}>
       <StatusBar
         translucent
-        backgroundColor={tailwind.color(isDarkMode ? 'bg-grayDark-50' : 'bg-white')}
+        backgroundColor={tailwind.color(isDarkMode ? 'bg-[#0b141a]' : 'bg-white')}
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
       />
       <ConversationListStateProvider>

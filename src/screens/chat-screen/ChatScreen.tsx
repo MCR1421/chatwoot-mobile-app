@@ -34,10 +34,11 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import { MacrosList } from './components/macros/MacrosList';
 import { WhatsAppTemplatesList } from './components/whatsapp-templates';
 import { macroActions } from '@/store/macro/macroActions';
+import { selectTheme } from '@/store/settings/settingsSelectors';
 
 export const ChatWindow = (props: ChatScreenProps) => {
   return (
-    <Animated.View style={tailwind.style('flex-1')}>
+    <Animated.View style={tailwind.style('flex-1 bg-white dark:bg-[#0b141a]')}>
       <MessagesListContainer />
       <ReplyBoxContainer />
       <MacrosList conversationId={props.route.params.conversationId} />
@@ -51,6 +52,8 @@ type ChatScreenProps = NativeStackScreenProps<TabBarExcludedScreenParamList, 'Ch
 const ConversationPagerView = (props: ChatScreenProps) => {
   const { chatPagerView } = useRefsContext();
   const { setPagerViewIndex } = useChatWindowContext();
+  const theme = useAppSelector(selectTheme);
+  const isDarkMode = theme === 'dark';
   const onPageSelected = (e: PagerViewOnPageSelectedEvent) => {
     setPagerViewIndex(e.nativeEvent.position);
   };
@@ -59,7 +62,14 @@ const ConversationPagerView = (props: ChatScreenProps) => {
       ref={chatPagerView}
       orientation="horizontal"
       overdrag
-      style={tailwind.style('flex-1')}
+      // PagerView is a native paging component (react-native-pager-view) —
+      // its own native background defaults to opaque white on Android
+      // regardless of any dark: class on its RN-level children, so it needs
+      // an explicit background set here directly.
+      style={[
+        tailwind.style('flex-1'),
+        { backgroundColor: tailwind.color(isDarkMode ? 'bg-[#0b141a]' : 'bg-white') },
+      ]}
       scrollEnabled
       initialPage={0}
       onPageSelected={onPageSelected}>
@@ -140,7 +150,7 @@ const ChatScreen = (props: ChatScreenProps) => {
   if (conversation) {
     const { messageId } = props.route.params;
     return (
-      <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white dark:bg-grayDark-50')}>
+      <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white dark:bg-[#0b141a]')}>
         <ChatWindowProvider conversationId={conversationId} messageId={messageId}>
           <ChatScreenWrapper {...props} />
         </ChatWindowProvider>
@@ -160,7 +170,7 @@ const ChatScreen = (props: ChatScreenProps) => {
 
   if (conversationError || !conversation) {
     return (
-      <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white dark:bg-grayDark-50')}>
+      <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white dark:bg-[#0b141a]')}>
         <Animated.View
           style={tailwind.style(
             'flex-1 items-center justify-center gap-8 px-4',

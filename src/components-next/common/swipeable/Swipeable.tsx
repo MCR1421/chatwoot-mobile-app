@@ -22,6 +22,8 @@ import Animated, {
 import { tailwind } from '@/theme';
 import { useHaptic } from '@/utils';
 import { AnimatedNativeView } from '@/components-next/native-components';
+import { useAppSelector } from '@/hooks';
+import { selectTheme } from '@/store/settings/settingsSelectors';
 
 const WIDTH = Dimensions.get('screen').width;
 
@@ -134,7 +136,14 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
   const isGestureActive = useSharedValue(false);
 
   const maxTranslation = WIDTH * 0.6;
-  const tappedBgStyle = tailwind.color('bg-gray-200') as string;
+  const theme = useAppSelector(selectTheme);
+  const isDarkMode = theme === 'dark';
+  // Rest/tapped cell colors are read into plain strings here (not
+  // tailwind.style('... dark:...') classes) because they're consumed by a
+  // Reanimated worklet (tappedCellStyle below), which runs on the UI thread
+  // and can't resolve tailwind classes itself — only these captured values.
+  const restBgStyle = tailwind.color(isDarkMode ? 'bg-[#0b141a]' : 'bg-white') as string;
+  const tappedBgStyle = tailwind.color(isDarkMode ? 'bg-grayDark-100' : 'bg-gray-200') as string;
   const maxSnapPointLeft = -maxTranslation;
   const maxSnapPointRight = maxTranslation;
 
@@ -427,7 +436,7 @@ export const Swipeable = forwardRef((props: SwipeableProps, _ref) => {
 
   const tappedCellStyle = useAnimatedStyle(() => {
     return {
-      backgroundColor: interpolateColor(isTapped.value, [0, 1], ['white', tappedBgStyle]),
+      backgroundColor: interpolateColor(isTapped.value, [0, 1], [restBgStyle, tappedBgStyle]),
     };
   });
 

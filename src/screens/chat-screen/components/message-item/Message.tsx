@@ -70,17 +70,20 @@ type MessageWrapperProps = {
 };
 
 const variantTextMap = {
-  [MESSAGE_VARIANTS.AGENT]: 'text-gray-700 dark:text-grayDark-700',
+  [MESSAGE_VARIANTS.AGENT]: 'text-gray-700 dark:text-white',
   [MESSAGE_VARIANTS.USER]: 'text-white',
   [MESSAGE_VARIANTS.BOT]: 'text-gray-700 dark:text-grayDark-700',
   [MESSAGE_VARIANTS.TEMPLATE]: 'text-gray-700 dark:text-grayDark-700',
   [MESSAGE_VARIANTS.ERROR]: 'text-white',
 };
 
+// Dark-mode bubble colors for AGENT (own/outgoing) and USER (contact/incoming)
+// match WhatsApp's dark theme palette (#144d37 outgoing green, #202c33
+// incoming slate) per user's explicit request to mirror that look.
 const variantBaseMap = {
-  [MESSAGE_VARIANTS.AGENT]: 'bg-gray-100 dark:bg-grayDark-100',
+  [MESSAGE_VARIANTS.AGENT]: 'bg-gray-100 dark:bg-[#144d37]',
   [MESSAGE_VARIANTS.PRIVATE]: 'bg-amber-100 dark:bg-amberDark-100',
-  [MESSAGE_VARIANTS.USER]: 'bg-blue-700 dark:bg-blueDark-700',
+  [MESSAGE_VARIANTS.USER]: 'bg-blue-700 dark:bg-[#202c33]',
   [MESSAGE_VARIANTS.BOT]: 'bg-blue-100 dark:bg-blueDark-100',
   [MESSAGE_VARIANTS.TEMPLATE]: 'bg-blue-100 dark:bg-blueDark-100',
   [MESSAGE_VARIANTS.ERROR]: 'bg-ruby-700 dark:bg-rubyDark-700',
@@ -90,8 +93,8 @@ const variantBaseMap = {
 };
 
 const variantBorderMap = {
-  [MESSAGE_VARIANTS.AGENT]: 'border-gray-100 dark:border-grayDark-100',
-  [MESSAGE_VARIANTS.USER]: 'border-gray-100 dark:border-grayDark-100',
+  [MESSAGE_VARIANTS.AGENT]: 'border-gray-100 dark:border-[#144d37]',
+  [MESSAGE_VARIANTS.USER]: 'border-gray-100 dark:border-[#202c33]',
   [MESSAGE_VARIANTS.BOT]: 'border-gray-100 dark:border-grayDark-100',
   [MESSAGE_VARIANTS.TEMPLATE]: 'border-gray-100 dark:border-grayDark-100',
   [MESSAGE_VARIANTS.ERROR]: 'border-gray-100 dark:border-grayDark-100',

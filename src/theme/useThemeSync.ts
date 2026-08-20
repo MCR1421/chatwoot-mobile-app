@@ -11,6 +11,7 @@ import { selectTheme } from '@/store/settings/settingsSelectors';
 // missing from twrnc's shipped `TailwindFn` type, so it's cast in here.
 type TailwindFnWithColorScheme = TailwindFn & {
   setColorScheme: (colorScheme: 'light' | 'dark') => void;
+  getColorScheme: () => string | null | undefined;
 };
 
 export const useThemeSync = () => {
