@@ -15,6 +15,7 @@ import type { Notification } from '@/types/Notification';
 import { tailwind } from '@/theme';
 import { useAppDispatch, useAppSelector } from '@/hooks';
 import { notificationActions } from '@/store/notification/notificationAction';
+import { selectTheme } from '@/store/settings/settingsSelectors';
 import {
   selectIsAllNotificationsFetched,
   selectIsLoadingNotifications,
@@ -147,7 +148,10 @@ const InboxList = () => {
         `pb-[${TAB_BAR_HEIGHT}px]`,
       )}>
       <EmptyStateIcon />
-      <Animated.Text style={tailwind.style('pt-6 text-md tracking-[0.32px] text-gray-800')}>
+      <Animated.Text
+        style={tailwind.style(
+          'pt-6 text-md tracking-[0.32px] text-gray-800 dark:text-grayDark-800',
+        )}>
         {i18n.t('NOTIFICATION.EMPTY')}
       </Animated.Text>
     </Animated.ScrollView>
@@ -170,6 +174,8 @@ const InboxList = () => {
 
 const InboxScreen = () => {
   const dispatch = useAppDispatch();
+  const theme = useAppSelector(selectTheme);
+  const isDarkMode = theme === 'dark';
 
   // Memoize the markAllAsRead callback
   const markAllAsRead = useCallback(async () => {
@@ -180,11 +186,11 @@ const InboxScreen = () => {
   }, [dispatch]);
 
   return (
-    <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white')}>
+    <SafeAreaView edges={['top']} style={tailwind.style('flex-1 bg-white dark:bg-grayDark-50')}>
       <StatusBar
         translucent
-        backgroundColor={tailwind.color('bg-white')}
-        barStyle={'dark-content'}
+        backgroundColor={tailwind.color(isDarkMode ? 'bg-grayDark-50' : 'bg-white')}
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
       />
       <InboxListStateProvider>
         <InboxHeader markAllAsRead={markAllAsRead} />
